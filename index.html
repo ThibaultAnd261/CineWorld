@@ -1,0 +1,31 @@
+<!doctype html>
+
+<html>
+
+<head>
+    <title>CineActu'</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!-- css/library -->
+    <link rel="stylesheet" href="./assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <!-- js -->
+    <script src="js/service.js"></script>
+    <!-- fichiers riot -->
+    <script src="tags/content.riot" type="riot"></script>
+    <script src="tags/fil.riot" type="riot"></script>
+    <script src="tags/fea.riot" type="riot"></script>
+    <script src="tags/navi.riot" type="riot"></script>
+    <script src="tags/grid.riot" type="riot"></script>
+    <script src="https://cdn.jsdelivr.net/npm/riot@6.1.2/riot+compiler.min.js"></script>
+</head>
+
+<body>
+
+    <content></content>
+
+    <script>
+        riot.compile().then(() => riot.mount('content'))
+    </script>
+</body>
+
+</html>

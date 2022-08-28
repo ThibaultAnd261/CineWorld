@@ -1,0 +1,146 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;400;600&display=swap");
+* {
+    margin: 0;
+    padding: 0;
+    font-family: "Poppins", sans-serif;
+    scroll-behavior: smooth;
+}
+
+body {
+    background-color: rgb(228, 222, 222);
+}
+
+.header {
+    background-color: #9078e6;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px;
+}
+
+.header-titre {
+    font-size: 70px;
+    border-bottom: solid 2px black;
+    margin-bottom: 5%;
+}
+
+.header-slogan {
+    font-size: 20px;
+    font-style: italic;
+}
+
+.container1-option1 {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 3%;
+}
+
+.container1-categorie {
+    display: flex;
+    align-items: center;
+}
+
+.container1-recherche {
+    display: flex;
+    align-items: center;
+}
+
+.nav-button {
+    background-color: #9078e6;
+    border-radius: 15px;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    transition-duration: 0.4s;
+}
+
+.nav-button:hover {
+    box-shadow: 0 12px 16px 0 rgba(0, 0, 0, 0.24), 0 17px 50px 0 rgba(0, 0, 0, 0.19);
+}
+
+.header1 {
+    display: flex;
+}
+
+.nav {
+    display: flex;
+    justify-content: space-around;
+    margin: 5% 15%;
+}
+
+.grid-film {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.card-film {
+    position: relative;
+    padding: 15px;
+    margin: 1%;
+    background-color: #9078e6;
+    border-radius: 15px;
+    /* border: solid 2px black; */
+}
+
+.card-film-title {
+    width: 300px;
+    height: 80px;
+    font-size: 22px;
+    font-weight: bolder;
+    text-align: center;
+}
+
+.card-film-poster {
+    width: 300px;
+    margin: 12% 0%;
+}
+
+.card-film-extra2 {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 6% 0%;
+}
+
+.card-film-extra1 {
+    position: absolute;
+    align-items: center;
+    bottom: 0;
+    width: 300px;
+    display: flex;
+    justify-content: center;
+}
+
+.nav2 {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sort-btn-div {
+    display: flex;
+    flex-direction: row;
+    margin: 5% 15%;
+}
+
+.sort {
+    width: 30px;
+}
+
+.pagination-div {
+    display: flex;
+}
+
+.star {
+    width: 25px;
+}

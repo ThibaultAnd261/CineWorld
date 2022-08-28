@@ -1,0 +1,378 @@
+<app>
+
+    <div class="header">
+        <p class="header-titre">CineWorld</p>
+        <p class="header-slogan">Suivez le monde cinématographique</p>
+    </div>
+
+    <div class="container1-option1">
+        <div class="container1-categorie">
+            <img class="eye" onclick={ ()=>hiddenOrNot()} src="./assets/img/hidden_eye.png" alt="">
+
+            <select class="" name="select_type" onchange={(listCates)=>selectGenre(listCates)}>
+            <!-- affichage des 19 catégories possible grâce à this.state.listCates, donc ajouter .name et .id pour obtenir les bonnes valeurs  -->
+            <option class="" value="genre">Choississez un genre</option>
+            <option class=""each={categorie in this.state.listCates} value={categorie.id}>{categorie.name}</option>
+
+        </select>
+        </div>
+        <div class="container1-recherche">
+            <p>Recherchez votre film :</p>
+            <input type="text" name="search" oninput={ searchBarText}>
+            <img src="./assets/img/loupe.png" class="loupe" alt="" onclick={ ()=> filmsFromText()}>
+        </div>
+
+    </div>
+    <div class="test">
+        <h1>{state.choiceCateID.name}</h1>
+        <!-- <h3>{state.listCates.name}</h3> -->
+        <h3>{state.text}</h3>
+    </div>
+
+    <!--------------->
+    <div class="nav">
+        <button class="nav-button" onclick={ ()=>featList('Populaires') }>Populaires</button>
+        <button class="nav-button" onclick={ ()=>featList('Mieux notés') }>Mieux notés</button>
+        <button class="nav-button" onclick={ ()=>featList('A venir') }>A venir</button>
+        <button class="nav-button" onclick={ ()=>featList('A laffiche') }>A l'affiche</button>
+    </div>
+
+    <div class="nav2">
+        <div class="sort-btn-div" onclick={ ()=>filtre('notes')}>
+            <p>Trier par note</p>
+            <img class="sort" src={this.state.ordre=='bestOrAZ' ? './assets/img/sort_up.png' : './assets/img/sort_down.png'} alt="">
+        </div>
+        <div class="pagination-div">
+            <button class="pages_btn" onclick={ ()=> pageStatus('precedent')} >&laquo;</button>
+            <p class="pages_number">{ state.pageCourante } / { state.totalPages }</p>
+            <button class="pages_btn" onclick={ ()=> pageStatus('suivant') } >&raquo;</button>
+        </div>
+        <div class="sort-btn-div" onclick={ ()=>filtre('nom')}>
+            <p>Trier par nom</p>
+            <img class="sort" src={this.state.ordre=='bestOrAZ' ? './assets/img/sort_up.png' : './assets/img/sort_down.png'} alt="">
+        </div>
+    </div>
+
+    <div class="grid-film">
+        <div class="card-film" each={features in this.state.moviesList}>
+            <p class="card-film-title">{features.title}</p>
+            <img src="https://image.tmdb.org/t/p/w500{features.poster_path}" class="card-film-poster" alt="">
+            <div class="card-film-extra">
+                <div class="card-film-extra2">
+                    <div class="card-film-stars">
+                        <img src="./assets/img/yellow_star.png" class="star" each={star1 in this.state.ylwStars}>
+                        <img src="./assets/img/black_star.png" class="star" each={star2 in this.state.stars}>
+                    </div>
+                    <p>{features.vote_average} / 10</p>
+                </div>
+                <div class="card-film-extra3">
+                    <!-- <button class="card-film-printDet"> Afficher les détails</button> -->
+                    <!-- <button class="card-film-printDet" onclick={ ()=>movieDetails({features})}>Afficher les détails</button> -->
+                    <a href="movie.html?id={features.id}">Btn</a>
+                </div>
+                <div class="card-film-extra1">
+                    <div class="card-film-cate" each={element in features.genre_ids}>
+                        <div class="card-film-cateName">{ this.state.genres.find(elt => elt.id == element).name} </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let visibleBtn = 0;
+        let numPage = 1;
+        let sa = makeServiceAjax();
+        export default {
+
+            onBeforeMount(props, state) {
+                // initial state
+                this.state = {
+                    // choix du genre de l'utilisateur
+                    choiceCateID: [],
+                    // les 19 genres possible
+                    listCates: [],
+                    // text entré par l'utilisateur
+                    text: '',
+                    // ql bouton parmi les 4 a été cliqué
+                    feat: '',
+                    // liste des films en fonction des choix de l'utilisateur
+                    moviesList: [],
+                    // qlle page sommes-nous
+                    pageCourante: '',
+                    // récupère le nb de pages total d'une catégorie
+                    totalPages: props.features1.total_pages,
+                    // récupère le nb d'étoile
+                    ylwStars: [],
+                    // 10 étoiles noires de base
+                    stars: [],
+                    // genre de film sous numéro
+                    genres: [],
+                    // genre de film sous nom
+                    genresNameFilm: [],
+                    // pour le tri, savoir l'ordre actuel
+                    ordre: 'aucun',
+                    classePar: '',
+                    // affichage des extras de la card, 0 pour afficher 1 pour enlever
+                    visible: '',
+                    // recherche de film via les catégories, le genre ou la barre de recherche ?
+                    type: ''
+                }
+                this.state.listCates = this.props.categorie.genres;
+                this.state.feat = 'Populaires'; // => initialise aux films populaires
+                this.state.moviesList = props.features1.results; // => initialise aux films populaires
+                this.state.pageCourante = numPage;
+                this.state.genres = props.categorie.genres;
+                this.state.visible = visibleBtn;
+                this.state.type = 'categorie';
+
+                // for (let i = 0; i < 10; i++) {
+                //     if (i < Math.trunc(this.props.features1.results.vote_average)) {
+                //         this.state.ylwStars.push(i);
+                //         console.log(this.state.ylwStars);
+                //     } else {
+                //         this.state.stars.push(i);
+                //         console.log(this.state.stars);
+                //     }
+                // }
+
+                // console.log(this.props.features1.results.vote_average)
+                // this.etoiles();
+            },
+
+
+            // récupérer le film écrit par l'utilisateur
+            searchBarText(evt) {
+                this.update({
+                    text: evt.target.value
+                })
+            },
+
+            selectGenre(evt) {
+                this.state.type = 'genre'
+                    // console.log(evt) // => affiche un tab et pour obtenir la valeur, vérifier le tableau et aller jusqu'à 'value'
+                this.state.choiceCateID = evt.target.value;
+                // permet d'afficher les films via la fonction filmAffiche en fonction du genre sélectionné par l'utilisateur
+                this.filmsAffiche(1, this.state.choiceCateID);
+
+                this.update();
+            },
+
+            // quel bouton parmis les 4 caractéristiques a été cliqué ? => affichage des premières pages, se distingue de filmsAffiche
+            featList(evt) {
+                this.state.feat = evt;
+                this.state.type = 'categorie'
+                if (this.state.feat == 'Populaires') {
+                    // ajout de la liste de films de la page étant populaire
+                    this.state.moviesList = this.props.features1.results;
+                    // page 1
+                    this.state.pageCourante = this.props.features1.page;
+                    // nb de page dans la caractéristique "Populaire"
+                    this.state.totalPages = this.props.features1.total_pages;
+                    this.update();
+                }
+                if (this.state.feat == 'Mieux notés') {
+                    this.state.moviesList = this.props.features2.results;
+                    this.state.pageCourante = this.props.features2.page;
+                    this.state.totalPages = this.props.features2.total_pages;
+                    this.update();
+                }
+                if (this.state.feat == 'A venir') {
+                    this.state.moviesList = this.props.features3.results;
+                    this.state.pageCourante = this.props.features3.page;
+                    this.state.totalPages = this.props.features3.total_pages;
+                    this.update();
+                }
+                if (this.state.feat == 'A laffiche') {
+                    this.state.moviesList = this.props.features4.results;
+                    this.state.pageCourante = this.props.features4.page;
+                    this.state.totalPages = this.props.features4.total_pages;
+                    this.update();
+                }
+            },
+
+            // fonction permettant la pagination
+            pageStatus(choixPage) {
+                // si le bouton cliqué est "<<", alors on baisse la page courante de this.state.pageCourant ssi elle est supérieure à 1
+                if (choixPage == 'precedent' && this.state.pageCourante > 1) {
+                    this.state.pageCourante--;
+                }
+                // si le bouton cliqué est ">>", alors on augmente la page courante de this.state.pageCourant ssi elle est inférieur au nombre total de pages 
+                if (choixPage == 'suivant' && this.state.pageCourante < this.state.totalPages) {
+                    this.state.pageCourante++;
+                }
+                // appel de la fonction filmsAffiche, présente ci-dessous
+                if (this.state.type == 'categorie') {
+                    this.filmsAffiche(this.state.pageCourante, this.state.feat)
+                }
+
+                if (this.state.type == 'genre') {
+                    this.filmsAffiche(this.state.pageCourante, this.state.choiceCateID);
+                }
+
+                if (this.state.type == 'barre') {
+                    this.filmsFromText(this.state.pageCourante);
+                }
+
+                this.update();
+            },
+
+            // fonction asynchrone permettant l'affiche du film en fonction de la pagination et de la catégorie selectionné
+            async filmsAffiche(page, categorie) {
+                if (this.state.feat == 'Populaires') {
+                    let movies = await sa.listFeat1(page, categorie); // {page, results, total_pages, total_results}
+                    this.state.moviesList = movies.results;
+                    this.state.pageCourante = movies.page;
+                    this.state.totalPages = movies.total_pages;
+                    this.update()
+                }
+                if (this.state.feat == 'Mieux notés') {
+                    let movies = await sa.listFeat2(page, categorie);
+                    this.state.moviesList = movies.results;
+                    this.state.pageCourante = movies.page;
+                    this.state.totalPages = movies.total_pages;
+                    this.update()
+                }
+                if (this.state.feat == 'A venir') {
+                    let movies = await sa.listFeat3(page, categorie);
+                    this.state.moviesList = movies.results;
+                    this.state.pageCourante = movies.page;
+                    this.state.totalPages = movies.total_pages;
+                    this.update()
+                }
+                if (this.state.feat == 'A laffiche') {
+                    let movies = await sa.listFeat4(page, categorie);
+                    this.state.moviesList = movies.results;
+                    this.state.pageCourante = movies.page;
+                    this.state.totalPages = movies.total_pages;
+                    this.update()
+                }
+            },
+
+            async filmsFromText(page) {
+                this.state.type = 'barre';
+                let moviesSearched = await sa.getMovieSearched(page, this.state.text);
+                this.state.moviesList = moviesSearched.results;
+                this.state.pageCourante = moviesSearched.page;
+                this.state.totalPages = moviesSearched.total_pages;
+                this.update();
+            },
+
+            // permet le tri des notes ou des titres
+            filtre(choixTri) {
+                // permet de permuter les filtres, soit des meilleurs aux pires notes + inversement / de A à Z + inversement
+                switch (this.state.ordre) {
+                    // 'aucun' est le cas initial
+                    case 'aucun':
+                        // s'il est cliqué, mettra en premier les meilleures notes ou les titres proche de la lettre 'A'
+                        this.state.ordre = 'bestOrAZ'
+                        break;
+
+                    case 'bestOrAZ':
+                        // si le bouton "trier" est cliqué alors que les meilleur(e)s sont affiché(e)s, mettra en premier les pires notes ou les titres proche de la lettre 'Z'
+                        this.state.ordre = 'badOrZA'
+                        break;
+
+                    case 'badOrZA':
+                        // si le bouton "trier" est cliqué alors que les pires sont affiché(e)s, mettra en premier les meilleures notes ou les titres proche de la lettre 'A'
+                        this.state.ordre = 'bestOrAZ'
+                        break;
+
+                    default:
+                        break;
+                }
+                switch (choixTri) {
+                    // reconnait ql bouton filtre a été cliqué
+                    case 'notes':
+                        if (this.state.ordre == 'bestOrAZ') {
+                            // afficher en premier les meilleures notes
+                            this.state.moviesList = this.state.moviesList.sort(
+                                function(a, b) {
+                                    return b.vote_average - a.vote_average;
+                                }
+                            )
+                        } else if (this.state.ordre == 'badOrZA') {
+                            // afficher en premier les pires notes
+                            this.state.moviesList = this.state.moviesList.sort(
+                                function(a, b) {
+                                    return a.vote_average - b.vote_average;
+                                }
+                            )
+                        }
+                        this.update();
+                        break;
+
+                    case 'nom':
+                        if (this.state.ordre == 'bestOrAZ') {
+                            // afficher en premier les titres proche de A
+                            this.state.moviesList = this.state.moviesList.sort(
+                                function(a, b) {
+                                    return a.title.localeCompare(b.title);
+                                }
+                            )
+                        } else if (this.state.ordre == 'badOrZA') {
+                            // afficher en premier les titres proche de Z
+                            this.state.moviesList = this.state.moviesList.sort(
+                                function(a, b) {
+                                    return b.title.localeCompare(a.title);
+                                }
+                            )
+                        }
+                        this.update();
+                        break;
+
+                    default:
+                        break;
+                }
+            },
+
+            // enlève les détails ou non si l'oeil du header est cliqué
+            hiddenOrNot() {
+                switch (visibleBtn) {
+                    // de visible à non visible
+                    case 0:
+                        visibleBtn++
+                        this.state.visible = visibleBtn;
+                        let cardDetails1 = document.querySelectorAll(".card-film-extra");
+                        for (let i = 0; i < this.state.moviesList.length; i++) {
+                            cardDetails1[i].style.display = "none";
+                        }
+
+                        break;
+
+                        // de non visible à visible
+                    case 1:
+                        visibleBtn--
+                        this.state.visible = visibleBtn;
+                        let cardDetails2 = document.querySelectorAll(".card-film-extra");
+                        for (let i = 0; i < this.state.moviesList.length; i++) {
+                            cardDetails2[i].style.display = "flex";
+                        }
+
+
+                        break;
+                    default:
+                        break;
+                }
+            },
+
+            // etoiles() {
+            //     this.state.moviesList.forEach(element => {
+            //         for (let i = 0; i < 10; i++) {
+            //             // this.state.ylwStars = Math.trunc(element.vote_average);
+            //             // console.log(Math.trunc(element.vote_average));
+            //             // this.state.ylwStars.push(Math.trunc(element.vote_average)).
+            //             if (i < Math.trunc(element.vote_average)) {
+            //                 this.state.ylwStars.push(i);
+            //                 console.log(this.state.ylwStars);
+            //             } else {
+            //                 this.state.stars.push(i);
+            //                 console.log(this.state.stars);
+            //             }
+            //         }
+            //     });
+            //     console.log(this.state.ylwStars)
+            // }
+        }
+    </script>
+</app>
